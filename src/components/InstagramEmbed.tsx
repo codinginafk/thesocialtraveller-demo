@@ -83,7 +83,7 @@ export default function InstagramEmbed({ url }: InstagramEmbedProps) {
 
   return (
     <div
-      className="instagram-embed flex items-center justify-center
+      className="instagram-embed h-[500px] overflow-hidden rounded-xl
         [&_.instagram-media]:!m-0 [&_.instagram-media]:!w-full [&_.instagram-media]:!min-w-0
         [&_.instagram-media_iframe]:!min-w-0 [&_.instagram-media_iframe]:!w-full"
       dangerouslySetInnerHTML={{ __html: html }}
