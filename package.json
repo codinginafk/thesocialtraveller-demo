@@ -1,0 +1,38 @@
+{
+  "name": "sct",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "analyze": "tsx scripts/analyze.ts"
+  },
+  "dependencies": {
+    "@sanity/image-url": "^2.1.1",
+    "@types/leaflet": "^1.9.21",
+    "framer-motion": "^12.42.2",
+    "leaflet": "^1.9.4",
+    "next": "16.2.10",
+    "next-sanity": "^13.1.1",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "react-leaflet": "^5.0.0",
+    "sanity": "^6.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.2.10",
+    "tailwindcss": "^4",
+    "tsx": "^4",
+    "typescript": "^5"
+  },
+  "overrides": {
+    "swr": "2.2.5"
+  }
+}
