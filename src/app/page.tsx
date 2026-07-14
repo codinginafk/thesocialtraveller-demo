@@ -207,72 +207,84 @@ async function FeaturedStory() {
   );
 }
 
-/* ─── Behind the Lens (latest 3 Instagram-style posts) ──────────────── */
+/* ─── Behind the Lens (latest 3 Instagram posts) ──────────────────── */
 
-function InstaPost({
-  title,
-  imgSrc,
-  isVideo,
-  postUrl,
+const INSTAGRAM_POSTS = [
+  {
+    url: "https://www.instagram.com/thesocialtraveller_2021/p/DVy4J_riFMK/",
+    alt: "Mountain cleanup journey",
+    isVideo: false,
+  },
+  {
+    url: "https://www.instagram.com/thesocialtraveller_2021/reel/DFr9icdi5FP/",
+    alt: "Trail clearing work",
+    isVideo: true,
+  },
+  {
+    url: "https://www.instagram.com/thesocialtraveller_2021/p/DFiBOmRJKiF/",
+    alt: "Scenic documentation",
+    isVideo: false,
+  },
+];
+
+function InstaPostCard({
+  post,
 }: {
-  title: string;
-  imgSrc: string | null;
-  isVideo: boolean;
-  postUrl?: string;
+  post: (typeof INSTAGRAM_POSTS)[number];
 }) {
-  const content = (
-    <div className="group relative aspect-square overflow-hidden rounded-xl">
-      {imgSrc ? (
-        <img
-          src={imgSrc}
-          alt={title}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center bg-forest">
-          <span className="text-2xl text-cream/30">📸</span>
+  return (
+    <a
+      href={post.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block"
+    >
+      <div className="group relative aspect-square overflow-hidden rounded-xl bg-forest">
+        <div className="flex h-full w-full items-center justify-center">
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 24 24"
+            fill="none"
+            className="text-cream/20"
+          >
+            <rect
+              x="2"
+              y="2"
+              width="20"
+              height="20"
+              rx="5"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            />
+            <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="1.5" />
+            <circle cx="18" cy="6" r="1.5" fill="currentColor" />
+          </svg>
         </div>
-      )}
-      <div className="absolute inset-0 bg-gradient-to-t from-bark/50 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-      {isVideo && (
-        <div className="absolute right-3 top-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-md">
-            <svg width="12" height="14" viewBox="0 0 20 22" fill="none">
-              <path d="M1 1L19 11L1 21V1Z" fill="#222" />
-            </svg>
-          </span>
+        <div className="absolute inset-0 bg-gradient-to-t from-bark/50 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+        {post.isVideo && (
+          <div className="absolute right-3 top-3">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-md">
+              <svg width="12" height="14" viewBox="0 0 20 22" fill="none">
+                <path d="M1 1L19 11L1 21V1Z" fill="#222" />
+              </svg>
+            </span>
+          </div>
+        )}
+        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100">
+          <p className="text-xs font-medium text-cream">{post.alt}</p>
         </div>
-      )}
-      <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100">
-        <p className="text-xs font-medium text-cream">{title}</p>
       </div>
-    </div>
+    </a>
   );
-
-  if (postUrl) {
-    return (
-      <a href={postUrl} target="_blank" rel="noopener noreferrer" className="block">
-        {content}
-      </a>
-    );
-  }
-
-  return content;
 }
 
 async function BehindTheLens() {
-  const [journeys, settings] = await Promise.all([
-    client
-      .fetch<JourneyDoc[]>(LATEST_JOURNEYS_QUERY, {}, { next: { revalidate: 3600 } })
-      .catch(() => []),
-    client
-      .fetch<Record<string, unknown>>(SITE_SETTINGS_QUERY, {}, { next: { revalidate: 3600 } })
-      .catch(() => ({} as Record<string, unknown>)),
-  ]);
-  if (!journeys || journeys.length < 3) return null;
+  const settings = await client
+    .fetch<Record<string, unknown>>(SITE_SETTINGS_QUERY, {}, { next: { revalidate: 3600 } })
+    .catch(() => ({} as Record<string, unknown>));
 
-  const instaUrl = (settings?.instagramUrl as string) || "https://instagram.com/TheSocialTraveller-2021";
-  const posts = journeys.slice(0, 3);
+  const instaUrl = (settings?.instagramUrl as string) || "https://instagram.com/thesocialtraveller_2021";
 
   return (
     <section className="bg-cream">
@@ -298,23 +310,9 @@ async function BehindTheLens() {
             </a>
           </div>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
-            {posts.map((j, i) => {
-              const img = j.heroImage
-                ? urlForImage(j.heroImage as never).width(600).height(600).fit("crop").url()
-                : j.youtubeId
-                  ? `https://i.ytimg.com/vi/${j.youtubeId}/maxresdefault.jpg`
-                  : null;
-              const isVideo = Boolean(j.youtubeId);
-              return (
-                <InstaPost
-                  key={j._id}
-                  title={j.title ?? "Scene from the trail"}
-                  imgSrc={img}
-                  isVideo={isVideo}
-                  postUrl={instaUrl}
-                />
-              );
-            })}
+            {INSTAGRAM_POSTS.map((post) => (
+              <InstaPostCard key={post.url} post={post} />
+            ))}
           </div>
           <div className="mt-6 text-center md:hidden">
             <a
