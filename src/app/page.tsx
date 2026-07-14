@@ -15,7 +15,7 @@ import Carousel from "@/components/Carousel";
 import MapIndiaWrapper from "@/components/MapIndiaWrapper";
 import FeaturedStoryClient from "@/components/FeaturedStoryClient";
 import EpisodeCard from "@/components/EpisodeCard";
-import InstagramPost from "@/components/InstagramPost";
+import InstagramEmbed from "@/components/InstagramEmbed";
 import { urlForImage } from "@/sanity/lib/image";
 import type { JourneyDoc } from "@/lib/journey";
 import { PLACES } from "@/lib/places";
@@ -211,21 +211,9 @@ async function FeaturedStory() {
 /* ─── Behind the Lens (latest 3 Instagram posts) ──────────────────── */
 
 const INSTAGRAM_POSTS = [
-  {
-    url: "https://www.instagram.com/thesocialtraveller_2021/p/DVy4J_riFMK/",
-    alt: "Mountain cleanup journey",
-    isVideo: false,
-  },
-  {
-    url: "https://www.instagram.com/thesocialtraveller_2021/reel/DFr9icdi5FP/",
-    alt: "Trail clearing work",
-    isVideo: true,
-  },
-  {
-    url: "https://www.instagram.com/thesocialtraveller_2021/p/DFiBOmRJKiF/",
-    alt: "Scenic documentation",
-    isVideo: false,
-  },
+  "https://www.instagram.com/thesocialtraveller_2021/p/DVy4J_riFMK/",
+  "https://www.instagram.com/thesocialtraveller_2021/reel/DFr9icdi5FP/",
+  "https://www.instagram.com/thesocialtraveller_2021/p/DFiBOmRJKiF/",
 ];
 
 async function BehindTheLens() {
@@ -258,9 +246,9 @@ async function BehindTheLens() {
               <span>→</span>
             </a>
           </div>
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
-            {INSTAGRAM_POSTS.map((post) => (
-              <InstagramPost key={post.url} {...post} />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {INSTAGRAM_POSTS.map((url) => (
+              <InstagramEmbed key={url} url={url} />
             ))}
           </div>
           <div className="mt-6 text-center md:hidden">
