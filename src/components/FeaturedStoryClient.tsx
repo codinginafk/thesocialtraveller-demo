@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 
+const THUMB_SIZES = ["maxresdefault", "hqdefault", "sddefault"];
+
 interface MediaModalProps {
   youtubeId: string;
   title: string;
@@ -67,10 +69,26 @@ export default function FeaturedStoryClient({
 }: FeaturedStoryClientProps) {
   const [showModal, setShowModal] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [currentSrc, setCurrentSrc] = useState(imgSrc);
+  const [fallbackLevel, setFallbackLevel] = useState(0);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    setCurrentSrc(imgSrc);
+    setFallbackLevel(0);
+  }, [imgSrc]);
+
+  const handleImgError = () => {
+    if (!youtubeId) return;
+    const next = fallbackLevel + 1;
+    if (next < THUMB_SIZES.length) {
+      setFallbackLevel(next);
+      setCurrentSrc(`https://i.ytimg.com/vi/${youtubeId}/${THUMB_SIZES[next]}.jpg`);
+    }
+  };
 
   if (!mounted) return null;
 
@@ -108,11 +126,12 @@ export default function FeaturedStoryClient({
           className="group relative min-h-[260px] cursor-pointer lg:min-h-[320px]"
           onClick={() => setShowModal(true)}
         >
-          {imgSrc && (
+          {currentSrc && (
             <>
               <img
-                src={imgSrc}
+                src={currentSrc}
                 alt={title}
+                onError={handleImgError}
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-bark/0 transition-colors duration-300 group-hover:bg-bark/20" />

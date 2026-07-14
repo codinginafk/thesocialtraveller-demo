@@ -3,10 +3,7 @@
 import Link from "next/link";
 import { urlForImage } from "@/sanity/lib/image";
 import type { JourneyDoc } from "@/lib/journey";
-
-function thumbUrl(youtubeId: string, size: "maxresdefault" | "hqdefault" | "sddefault" = "maxresdefault") {
-  return `https://i.ytimg.com/vi/${youtubeId}/${size}.jpg`;
-}
+import YoutubeThumbnail from "@/components/YoutubeThumbnail";
 
 export default function EpisodeCard({
   journey,
@@ -35,19 +32,10 @@ export default function EpisodeCard({
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : ytId ? (
-          <img
-            src={thumbUrl(ytId, "maxresdefault")}
+          <YoutubeThumbnail
+            youtubeId={ytId}
             alt={journey.title ?? "Episode"}
-            loading="lazy"
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            onError={(e) => {
-              const img = e.currentTarget;
-              if (img.src.includes("maxresdefault")) {
-                img.src = thumbUrl(ytId, "hqdefault");
-              } else if (img.src.includes("hqdefault")) {
-                img.src = thumbUrl(ytId, "sddefault");
-              }
-            }}
           />
         ) : null}
         {/* Dark overlay on hover */}

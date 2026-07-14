@@ -14,7 +14,7 @@ import Reveal from "@/components/Reveal";
 import Carousel from "@/components/Carousel";
 import MapIndiaWrapper from "@/components/MapIndiaWrapper";
 import FeaturedStoryClient from "@/components/FeaturedStoryClient";
-import EpisodeCard from "@/components/EpsiodeCard";
+import EpisodeCard from "@/components/EpisodeCard";
 import { urlForImage } from "@/sanity/lib/image";
 import type { JourneyDoc } from "@/lib/journey";
 import { PLACES } from "@/lib/places";
