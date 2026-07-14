@@ -15,6 +15,7 @@ import Carousel from "@/components/Carousel";
 import MapIndiaWrapper from "@/components/MapIndiaWrapper";
 import FeaturedStoryClient from "@/components/FeaturedStoryClient";
 import EpisodeCard from "@/components/EpisodeCard";
+import InstagramPost from "@/components/InstagramPost";
 import { urlForImage } from "@/sanity/lib/image";
 import type { JourneyDoc } from "@/lib/journey";
 import { PLACES } from "@/lib/places";
@@ -227,58 +228,6 @@ const INSTAGRAM_POSTS = [
   },
 ];
 
-function InstaPostCard({
-  post,
-}: {
-  post: (typeof INSTAGRAM_POSTS)[number];
-}) {
-  return (
-    <a
-      href={post.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="block"
-    >
-      <div className="group relative aspect-square overflow-hidden rounded-xl bg-forest">
-        <div className="flex h-full w-full items-center justify-center">
-          <svg
-            width="40"
-            height="40"
-            viewBox="0 0 24 24"
-            fill="none"
-            className="text-cream/20"
-          >
-            <rect
-              x="2"
-              y="2"
-              width="20"
-              height="20"
-              rx="5"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            />
-            <circle cx="12" cy="12" r="5" stroke="currentColor" strokeWidth="1.5" />
-            <circle cx="18" cy="6" r="1.5" fill="currentColor" />
-          </svg>
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-bark/50 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-        {post.isVideo && (
-          <div className="absolute right-3 top-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-md">
-              <svg width="12" height="14" viewBox="0 0 20 22" fill="none">
-                <path d="M1 1L19 11L1 21V1Z" fill="#222" />
-              </svg>
-            </span>
-          </div>
-        )}
-        <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100">
-          <p className="text-xs font-medium text-cream">{post.alt}</p>
-        </div>
-      </div>
-    </a>
-  );
-}
-
 async function BehindTheLens() {
   const settings = await client
     .fetch<Record<string, unknown>>(SITE_SETTINGS_QUERY, {}, { next: { revalidate: 3600 } })
@@ -311,7 +260,7 @@ async function BehindTheLens() {
           </div>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
             {INSTAGRAM_POSTS.map((post) => (
-              <InstaPostCard key={post.url} post={post} />
+              <InstagramPost key={post.url} {...post} />
             ))}
           </div>
           <div className="mt-6 text-center md:hidden">
