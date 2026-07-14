@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 const THUMB_SIZES = ["maxresdefault", "hqdefault", "sddefault"];
 
@@ -70,7 +70,7 @@ export default function FeaturedStoryClient({
   const [showModal, setShowModal] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [currentSrc, setCurrentSrc] = useState(imgSrc);
-  const [fallbackLevel, setFallbackLevel] = useState(0);
+  const ref = useRef({ level: 0 });
 
   useEffect(() => {
     setMounted(true);
@@ -78,19 +78,32 @@ export default function FeaturedStoryClient({
 
   useEffect(() => {
     setCurrentSrc(imgSrc);
-    setFallbackLevel(0);
+    ref.current.level = 0;
   }, [imgSrc]);
 
-  const handleImgError = () => {
+  const advanceFallback = useCallback(() => {
     if (!youtubeId) return;
-    const next = fallbackLevel + 1;
+    const next = ref.current.level + 1;
     if (next < THUMB_SIZES.length) {
-      setFallbackLevel(next);
+      ref.current.level = next;
       setCurrentSrc(`https://i.ytimg.com/vi/${youtubeId}/${THUMB_SIZES[next]}.jpg`);
     } else {
       setCurrentSrc(null);
     }
-  };
+  }, [youtubeId]);
+
+  const handleImgLoad = useCallback(
+    (e: React.SyntheticEvent<HTMLImageElement>) => {
+      if (e.currentTarget.naturalWidth <= 120) {
+        advanceFallback();
+      }
+    },
+    [advanceFallback]
+  );
+
+  const handleImgError = useCallback(() => {
+    advanceFallback();
+  }, [advanceFallback]);
 
   if (!mounted) return null;
 
@@ -106,6 +119,7 @@ export default function FeaturedStoryClient({
             <img
               src={currentSrc}
               alt={title}
+              onLoad={handleImgLoad}
               onError={handleImgError}
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
             />

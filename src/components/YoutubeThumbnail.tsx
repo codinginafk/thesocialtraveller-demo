@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 
-const SIZES = ["maxresdefault", "hqdefault", "sddefault"] as const;
+const SIZES = ["maxresdefault", "hqdefault", "sddefault"];
 
 export default function YoutubeThumbnail({
   youtubeId,
@@ -13,21 +13,34 @@ export default function YoutubeThumbnail({
   alt: string;
   className?: string;
 }) {
-  const [src, setSrc] = useState<string>(
+  const [src, setSrc] = useState(
     `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`
   );
   const [failed, setFailed] = useState(false);
+  const sizeIndex = useRef(0);
 
-  const handleError = () => {
-    const sizes = ["maxresdefault", "hqdefault", "sddefault"];
-    const current = sizes.findIndex((s) => src.endsWith(`/${s}.jpg`));
-    const next = current + 1;
-    if (next < sizes.length) {
-      setSrc(`https://i.ytimg.com/vi/${youtubeId}/${sizes[next]}.jpg`);
+  const advance = useCallback(() => {
+    const next = sizeIndex.current + 1;
+    if (next < SIZES.length) {
+      sizeIndex.current = next;
+      setSrc(`https://i.ytimg.com/vi/${youtubeId}/${SIZES[next]}.jpg`);
     } else {
       setFailed(true);
     }
-  };
+  }, [youtubeId]);
+
+  const handleLoad = useCallback(
+    (e: React.SyntheticEvent<HTMLImageElement>) => {
+      if (e.currentTarget.naturalWidth <= 120) {
+        advance();
+      }
+    },
+    [advance]
+  );
+
+  const handleError = useCallback(() => {
+    advance();
+  }, [advance]);
 
   if (failed) {
     return (
@@ -43,6 +56,7 @@ export default function YoutubeThumbnail({
       alt={alt}
       loading="lazy"
       className={className}
+      onLoad={handleLoad}
       onError={handleError}
     />
   );
