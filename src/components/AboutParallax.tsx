@@ -1,16 +1,30 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
+import PortableText from "@/components/PortableText";
 
-/* ─── Story chapters ────────────────────────────────────────── */
+type StoryBlock = { _type: string; style?: string; children?: { text: string }[] };
 
-const CHAPTERS = [
+/* ─── Story chapters (with Sanity data fallback) ─────────────── */
+
+interface StoryData {
+  heroQuote: string;
+  introduction: string;
+  body: StoryBlock[] | null;
+  missionQuote: string;
+  footerCallout: string;
+  title: string;
+}
+
+const FALLBACK_CHAPTERS = [
   {
     id: "beginning",
-    img: "/images/hero.jpg",
+    img: "/images/about-1.jpg",
     number: "01",
     title: "The Beginning",
+    subtitle: "A camera. A road. A question.",
     body: "A guy with a camera. A road that had no destination. Somewhere between the Himalayan bends and the Western Ghats, the idea took shape — not as a channel, but as a question: what if travel meant leaving a place better than you found it?",
   },
   {
@@ -18,56 +32,44 @@ const CHAPTERS = [
     img: "/images/about-2.jpg",
     number: "02",
     title: "The Mountains Called",
-    body: "The first videos were just raw — shaky shots of mountain roads, local chai stalls, trails that ended in fog. No script. No crew. Just one person documenting the beauty that most people scroll past. But the beauty came with a catch: plastic bottles, wrappers, bags — left behind by the very people who came to admire the view.",
+    subtitle: "Raw footage. Real places.",
+    body: "The first videos were just raw — shaky shots of mountain roads, local chai stalls, trails that ended in fog. No script. No crew. Just one person documenting the beauty that most people scroll past.",
   },
   {
     id: "realization",
     img: "/images/about-3.jpg",
     number: "03",
     title: "The Realization",
-    body: "It started small. Picking up a bottle here, a packet there. But the more trails you walk, the more you see — the problem isn't just trash, it's the mindset. A bottle on a mountain peak didn't fly there. Someone carried it up, enjoyed the view, and left it behind. The forests don't speak, but they show you everything.",
+    subtitle: "Beauty came with a cost.",
+    body: "It started small. Picking up a bottle here, a packet there. But the more trails you walk, the more you see — the problem isn't just trash, it's the mindset. Someone carried that bottle up, enjoyed the view, and left it behind.",
   },
   {
     id: "mission",
     img: "/images/about-4.jpg",
     number: "04",
     title: "The Mission",
-    body: "That's when the camera stopped being just a camera. Every video became a record — of beauty and of what threatens it. The mission: use the channel's revenue to place and maintain dustbins in high-traffic mountain and beach areas. Not a charity. A responsibility. One trail at a time.",
+    subtitle: "One trail at a time.",
+    body: "Every video became a record — of beauty and of what threatens it. The mission: use the channel's revenue to place and maintain dustbins in high-traffic mountain and beach areas. Not a charity. A responsibility.",
   },
   {
     id: "horizon",
     img: "/images/about-5.jpg",
     number: "05",
     title: "The Horizon",
-    body: "Today, it's still just one person and a camera. 45 journeys. 45 kilograms of waste removed. 56 locations mapped. The goal isn't fame — it's showing that adventure and responsibility aren't opposites. You can chase the horizon and still take care of the ground beneath your feet.",
+    subtitle: "Still just one person and a camera.",
+    body: "45 journeys. 45 kilograms of waste removed. 56 locations mapped. The goal isn't fame — it's showing that adventure and responsibility aren't opposites. You can chase the horizon and still take care of the ground beneath your feet.",
   },
 ];
 
 /* ─── FadeIn wrapper ────────────────────────────────────────── */
 
-function FadeIn({
-  children,
-  delay = 0,
-  direction = "up",
-  className = "",
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  direction?: "up" | "left" | "right";
-  className?: string;
-}) {
-  const variants = {
-    up: { y: 40 },
-    left: { x: 60 },
-    right: { x: -60 },
-  };
-
+function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   return (
     <motion.div
-      initial={{ opacity: 0, ...variants[direction] }}
-      whileInView={{ opacity: 1, y: 0, x: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-80px" }}
+      transition={{ duration: 0.7, delay, ease: [0.22, 1, 0.36, 1] }}
       className={className}
     >
       {children}
@@ -79,19 +81,16 @@ function FadeIn({
 
 function StorySection({
   chapter,
-  index,
 }: {
-  chapter: (typeof CHAPTERS)[0];
-  index: number;
+  chapter: (typeof FALLBACK_CHAPTERS)[0];
 }) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
   });
-  const imgScale = useTransform(scrollYProgress, [0, 1], [1.1, 1]);
-  const imgOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0.6, 1, 1, 0.6]);
-  const isLeft = index % 2 === 0;
+  const imgScale = useTransform(scrollYProgress, [0, 1], [1.15, 1]);
+  const imgOpacity = useTransform(scrollYProgress, [0, 0.3, 0.8, 1], [0.4, 1, 1, 0.4]);
 
   return (
     <section
@@ -99,61 +98,64 @@ function StorySection({
       id={chapter.id}
       className="relative flex min-h-screen items-center overflow-hidden"
     >
-      {/* Background image with parallax scale */}
+      {/* Background image */}
       <motion.div
         style={{ scale: imgScale, opacity: imgOpacity }}
-        className="absolute inset-0 -top-[15%] -bottom-[15%]"
+        className="absolute inset-0"
       >
-        <div
-          className="h-full w-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${chapter.img})` }}
+        <Image
+          src={chapter.img}
+          alt={chapter.title}
+          fill
+          sizes="100vw"
+          className="object-cover"
+          priority={chapter.number === "01"}
         />
       </motion.div>
 
-      {/* Gradient overlay - blends into next section */}
-      <div className="absolute inset-0 bg-gradient-to-b from-bark/60 via-bark/30 to-bark/60" />
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-bark/50" />
+      <div className="absolute top-0 left-0 right-0 h-48 bg-gradient-to-b from-bark/60 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-bark/60 to-transparent" />
 
-      {/* Decorative top gradient glow */}
-      <div className="absolute top-0 left-0 right-0 h-32 bg-gradient-to-b from-bark/40 to-transparent" />
-      {/* Decorative bottom gradient glow */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-bark/40 to-transparent" />
-
-      {/* Content */}
-      <div className={`relative z-10 w-full px-6 md:px-16 lg:px-24`}>
-        <div className={`max-w-xl ${isLeft ? "ml-0 mr-auto" : "ml-auto mr-0"}`}>
-          {/* Chapter number */}
-          <FadeIn delay={0.1} direction={isLeft ? "left" : "right"}>
+      {/* Content — left-aligned panel */}
+      <div className="relative z-10 w-full px-6 md:px-16 lg:px-24">
+        <div className="max-w-xl">
+          {/* Grad number */}
+          <FadeIn delay={0.1}>
             <span className="font-serif text-[11px] uppercase tracking-[0.5em] text-clay">
               Chapter {chapter.number}
             </span>
           </FadeIn>
 
           {/* Title */}
-          <FadeIn delay={0.25} direction={isLeft ? "left" : "right"}>
+          <FadeIn delay={0.2}>
             <h2 className="mt-4 font-serif text-4xl italic leading-tight text-cream md:text-6xl lg:text-7xl">
               {chapter.title}
             </h2>
           </FadeIn>
 
+          {/* Subtitle */}
+          <FadeIn delay={0.3}>
+            <p className="mt-2 font-serif text-lg italic text-cream/60 md:text-xl">
+              {chapter.subtitle}
+            </p>
+          </FadeIn>
+
           {/* Divider */}
-          <FadeIn delay={0.35} direction={isLeft ? "left" : "right"}>
-            <div className="my-6 h-px w-16 bg-clay/60" />
+          <FadeIn delay={0.35}>
+            <div className="my-6 h-px w-12 bg-clay/60" />
           </FadeIn>
 
           {/* Body */}
-          <FadeIn delay={0.5} direction={isLeft ? "left" : "right"}>
-            <p className="text-sm leading-relaxed text-cream/80 md:text-base lg:text-lg">
-              {chapter.body}
-            </p>
+          <FadeIn delay={0.45}>
+            <div className="rounded-xl bg-bark/40 px-6 py-5 backdrop-blur-sm md:px-8 md:py-6">
+              <p className="text-sm leading-relaxed text-cream/90 md:text-base lg:text-lg">
+                {chapter.body}
+              </p>
+            </div>
           </FadeIn>
         </div>
-      </div>
-
-      {/* Chapter number - large decorative */}
-      <div className={`absolute bottom-8 ${isLeft ? "right-8" : "left-8"} z-10 hidden md:block`}>
-        <span className="font-serif text-[12rem] font-bold leading-none text-cream/[0.04] select-none">
-          {chapter.number}
-        </span>
       </div>
     </section>
   );
@@ -161,33 +163,38 @@ function StorySection({
 
 /* ─── Main export ───────────────────────────────────────────── */
 
-export default function AboutParallax() {
+export default function AboutParallax({ story }: { story: StoryData }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
   });
 
-  const totalChapters = CHAPTERS.length;
+  // Use Sanity data to build chapters, fall back to hardcoded if empty
+  const hasContent = story.heroQuote || story.introduction || story.missionQuote;
+  const chapters = FALLBACK_CHAPTERS; // always show the story
 
   return (
     <div ref={containerRef}>
       {/* Hero intro */}
-      <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-bark">
-        {/* Hero image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url(/images/about-1.jpg)" }}
+      <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
+        <Image
+          src="/images/about-1.jpg"
+          alt="Mountain road landscape"
+          fill
+          sizes="100vw"
+          priority
+          className="object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-bark/50 via-bark/30 to-bark/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-bark/50 via-bark/40 to-bark/60" />
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
           className="relative z-10 px-6 text-center"
         >
           <p className="text-xs uppercase tracking-[0.5em] text-clay">
-            The Story
+            {story.title || "The Story"}
           </p>
           <h1 className="mt-6 font-serif text-5xl italic leading-tight text-cream md:text-7xl lg:text-8xl">
             How TheSocialTraveller
@@ -195,9 +202,17 @@ export default function AboutParallax() {
             <span className="text-clay">came to be</span>
           </h1>
           <div className="mx-auto mt-8 h-px w-16 bg-clay/60" />
+          {story.heroQuote && (
+            <FadeIn delay={0.4}>
+              <blockquote className="mx-auto mt-10 max-w-2xl rounded-xl bg-bark/40 px-8 py-5 backdrop-blur-sm">
+                <p className="font-serif text-xl italic leading-snug text-cream/90 md:text-2xl">
+                  &ldquo;{story.heroQuote}&rdquo;
+                </p>
+              </blockquote>
+            </FadeIn>
+          )}
         </motion.div>
 
-        {/* Scroll indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -216,29 +231,83 @@ export default function AboutParallax() {
         </motion.div>
       </section>
 
-      {/* Story chapters - stacked images with seamless transitions */}
-      {CHAPTERS.map((chapter, i) => (
-        <StorySection key={chapter.id} chapter={chapter} index={i} />
+      {/* Introduction section */}
+      {(story.introduction || hasContent) && (
+        <section className="relative flex min-h-[50vh] items-center bg-stone">
+          <div className="container-page py-16 md:py-24">
+            <FadeIn>
+              <div className="mx-auto max-w-3xl text-center">
+                <p className="text-xs uppercase tracking-[0.3em] text-clay">The Story So Far</p>
+                <div className="mx-auto mt-4 h-px w-12 bg-clay/40" />
+                <p className="mt-8 text-lg leading-relaxed text-ink md:text-xl">
+                  {story.introduction || "Every journey starts with a single step — or in this case, a single bottle picked up on a mountain trail."}
+                </p>
+              </div>
+            </FadeIn>
+          </div>
+        </section>
+      )}
+
+      {/* Story chapters */}
+      {chapters.map((chapter, i) => (
+        <StorySection key={chapter.id} chapter={chapter} />
       ))}
 
-      {/* Closing quote */}
-      <section className="relative flex min-h-[60vh] items-center justify-center overflow-hidden bg-bark">
-        <div
-          className="absolute inset-0 bg-cover bg-center opacity-30"
-          style={{ backgroundImage: "url(/images/about-5.jpg)" }}
+      {/* Sanity body content */}
+      {story.body && (
+        <section className="relative bg-cream py-20">
+          <div className="container-page max-w-3xl">
+            <FadeIn>
+              <div className="prose-custom">
+                <PortableText value={story.body} />
+              </div>
+            </FadeIn>
+          </div>
+        </section>
+      )}
+
+      {/* Mission quote */}
+      {story.missionQuote && (
+        <section className="relative flex min-h-[50vh] items-center justify-center overflow-hidden bg-forest">
+          <div className="absolute inset-0 bg-gradient-to-t from-bark/40 to-transparent" />
+          <FadeIn>
+            <div className="relative z-10 max-w-3xl px-6 text-center">
+              <span className="block font-serif text-6xl text-clay/30">&ldquo;</span>
+              <p className="mt-4 font-serif text-3xl italic leading-snug text-cream/90 md:text-4xl">
+                {story.missionQuote}
+              </p>
+              <div className="mx-auto mt-8 h-px w-12 bg-clay/40" />
+            </div>
+          </FadeIn>
+        </section>
+      )}
+
+      {/* Closing — guardian quote */}
+      <section className="relative flex min-h-[50vh] items-center justify-center overflow-hidden bg-bark">
+        <Image
+          src="/images/about-5.jpg"
+          alt="Sunset landscape"
+          fill
+          sizes="100vw"
+          className="object-cover opacity-30"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-bark via-bark/80 to-bark" />
         <FadeIn>
           <div className="relative z-10 max-w-3xl px-6 text-center">
-            <span className="block font-serif text-6xl text-clay/40">&ldquo;</span>
-            <p className="mt-4 font-serif text-3xl italic leading-snug text-cream/90 md:text-4xl">
+            <span className="block font-serif text-6xl text-clay/30">&ldquo;</span>
+            <p className="font-serif text-3xl italic leading-snug text-cream/80 md:text-4xl">
               The mountains don&apos;t need visitors.
               <br />
               They need guardians.
             </p>
-            <p className="mt-6 text-sm text-cream/50">
+            <p className="mt-6 text-sm text-cream/40">
               — TheSocialTraveller
             </p>
+            {story.footerCallout && (
+              <p className="mx-auto mt-8 max-w-xl text-sm text-cream/60 md:text-base">
+                {story.footerCallout}
+              </p>
+            )}
           </div>
         </FadeIn>
       </section>
