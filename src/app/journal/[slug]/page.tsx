@@ -28,7 +28,7 @@ export async function generateMetadata({
   const n = await client
     .fetch(FIELD_NOTE_BY_SLUG_QUERY, { slug }, { next: { revalidate: 10800 } })
     .catch(() => null);
-  if (!n) return { title: "Field Note — TheSocialTraveller" };
+  if (!n) return { title: "Journal — TheSocialTraveller" };
   return { title: `${n.title} — TheSocialTraveller`, description: n.excerpt };
 }
 
@@ -59,12 +59,12 @@ export default async function FieldNotePage({
     : "";
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12 sm:px-8">
+    <article className="mx-auto max-w-3xl px-4 py-12 sm:px-8">
       <Link
-        href="/field-notes"
+        href="/journal"
         className="text-sm text-water underline-offset-2 hover:underline"
       >
-        ← All Field Notes
+        ← All Journal
       </Link>
 
       <h1 className="mt-6 font-serif text-4xl text-bark md:text-5xl">
@@ -116,6 +116,6 @@ export default async function FieldNotePage({
           </Link>
         </div>
       )}
-    </main>
+    </article>
   );
 }

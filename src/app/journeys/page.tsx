@@ -1,9 +1,16 @@
+import type { Metadata } from "next";
 import { client } from "@/sanity/lib/client";
 import { JOURNEYS_QUERY } from "@/sanity/lib/queries";
 import JourneysGallery from "@/components/JourneysGallery";
 import type { JourneyDoc } from "@/lib/journey";
 
 export const revalidate = 3600;
+
+export const metadata: Metadata = {
+  title: "Journeys",
+  description: "Every video is a journey. Mountains, coasts, forests — with a cleanup along the way.",
+  openGraph: { title: "Journeys — TheSocialTraveller" },
+};
 
 export default async function JourneysPage() {
   const journeys = await client

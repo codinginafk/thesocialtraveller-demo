@@ -30,10 +30,10 @@ export default function ImpactDashboard({
   );
 
   const ledger = [
-    { value: agg.trips, label: "Journeys Completed" },
-    { value: `${agg.trashKg} kg`, label: "Waste Removed" },
-    { value: agg.locations, label: "Locations Documented" },
-    { value: agg.regions, label: "Regions Explored" },
+    { value: agg.trips, label: "Journeys" },
+    { value: `${agg.trashKg} kg`, label: "Kilos pulled out" },
+    { value: agg.locations, label: "Locations" },
+    { value: agg.regions, label: "Regions" },
   ];
 
   return (
@@ -56,13 +56,13 @@ export default function ImpactDashboard({
 
       {years.length > 0 && (
         <div className="mt-14">
-          <h2 className="font-serif text-2xl text-bark">Progression</h2>
+          <h2 className="font-serif text-2xl text-bark">Year by year</h2>
           <div className="mt-6 space-y-6">
             {years.map(([year, data]) => (
               <div key={year} className="border-l-2 border-leaf pl-5">
                 <div className="font-serif text-3xl text-forest">{year}</div>
                 <div className="mt-1 text-ink-soft">
-                  {data.trips} journeys · {data.kg} kg removed
+                  {data.trips} journeys · {data.kg} kg pulled
                 </div>
               </div>
             ))}

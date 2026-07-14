@@ -7,11 +7,12 @@ export const runtime = "nodejs";
 // signs the request with `Authorization: Bearer <CRON_SECRET>` — verify it.
 export async function GET(req: Request) {
   const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = req.headers.get("authorization") || "";
-    if (auth !== `Bearer ${secret}`) {
-      return new Response("Unauthorized", { status: 401 });
-    }
+  if (!secret) {
+    return new Response("CRON_SECRET not configured", { status: 500 });
+  }
+  const auth = req.headers.get("authorization") || "";
+  if (auth !== `Bearer ${secret}`) {
+    return new Response("Unauthorized", { status: 401 });
   }
 
   try {

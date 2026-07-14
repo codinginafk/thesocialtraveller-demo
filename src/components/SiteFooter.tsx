@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 export default function SiteFooter({
   youtubeUrl,
   instagramUrl,
@@ -10,8 +8,8 @@ export default function SiteFooter({
   facebookUrl?: string;
 }) {
   const yt = youtubeUrl || "https://youtube.com/@TheSocialTraveller-2021";
-  const ig = instagramUrl || "https://instagram.com/TheSocialTraveller-2021";
-  const fb = facebookUrl || "https://facebook.com/thesocialtraveller";
+  const ig = "https://www.instagram.com/thesocialtraveller_2021/";
+  const fb = "https://www.facebook.com/profile.php?id=61559573067044";
 
   return (
     <footer className="relative overflow-hidden">
@@ -26,7 +24,7 @@ export default function SiteFooter({
       <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-cream/[0.03] to-transparent" />
 
       <div className="relative z-10">
-        <div className="container-page flex flex-col items-start justify-between gap-10 py-20 md:flex-row md:items-center">
+        <div className="container-page flex flex-col items-start justify-between gap-8 py-12 md:flex-row md:items-center">
           <blockquote className="max-w-lg">
             <span className="block font-serif text-5xl text-clay">&ldquo;</span>
             <p className="mt-2 font-serif text-2xl italic text-cream md:text-3xl">
@@ -35,7 +33,7 @@ export default function SiteFooter({
             <p className="mt-4 text-sm text-cream/60">— TheSocialTraveller</p>
           </blockquote>
           <div className="flex flex-col items-start gap-4 md:items-end">
-            <div className="flex gap-4">
+            <nav aria-label="Social links" className="flex gap-4">
               <a href={yt} target="_blank" rel="noopener noreferrer" className="text-cream/60 transition-colors hover:text-cream" aria-label="YouTube">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
               </a>
@@ -45,7 +43,7 @@ export default function SiteFooter({
               <a href={fb} target="_blank" rel="noopener noreferrer" className="text-cream/60 transition-colors hover:text-cream" aria-label="Facebook">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
               </a>
-            </div>
+            </nav>
             <a href="mailto:info@thesocialtraveller.in" className="text-sm text-cream/60 transition-colors hover:text-cream">
               hello@thesocialtraveller.in
             </a>
@@ -54,10 +52,6 @@ export default function SiteFooter({
         <div className="border-t border-cream/15">
           <div className="container-page flex flex-col items-center justify-between gap-4 py-5 text-xs text-cream/40 sm:flex-row">
             <span>© 2026 TheSocialTraveller. All rights reserved.</span>
-            <div className="flex gap-6">
-              <Link href="/privacy" className="hover:text-cream/60">Privacy Policy</Link>
-              <Link href="/terms" className="hover:text-cream/60">Terms &amp; Conditions</Link>
-            </div>
           </div>
         </div>
       </div>

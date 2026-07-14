@@ -18,7 +18,7 @@ export default function JourneyCard({
         .fit("crop")
         .url()
     : journey.youtubeId
-      ? `https://i.ytimg.com/vi/${journey.youtubeId}/hqdefault.jpg`
+      ? `https://i.ytimg.com/vi/${journey.youtubeId}/maxresdefault.jpg`
       : null;
 
   const stops =
@@ -29,8 +29,8 @@ export default function JourneyCard({
   const tag = journey.season || journey.state || journey.region || "";
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-xl border border-sand bg-stone shadow-soft transition-shadow hover:shadow-lg">
-      <Link href={`/journeys/${slug}`} className="relative block aspect-[16/10] w-full overflow-hidden bg-ink/5">
+    <article className="group flex flex-col overflow-hidden rounded-xl bg-stone shadow-soft transition-shadow hover:shadow-lg">
+      <Link href={`/journeys/${slug}`} className="relative block aspect-video w-full overflow-hidden bg-cream">
         {imgUrl && (
           <Image
             src={imgUrl}

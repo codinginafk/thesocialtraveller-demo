@@ -5,10 +5,9 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 const links = [
-  { href: "/journeys", label: "Videos" },
-  { href: "/impact", label: "Impact" },
-  { href: "/field-notes", label: "Journal" },
-  { href: "/#map", label: "Map" },
+  { href: "/journeys", label: "Journeys" },
+  { href: "/map", label: "Map" },
+  { href: "/journal", label: "Journal" },
   { href: "/about", label: "About" },
 ];
 
@@ -71,7 +70,9 @@ export default function SiteHeader() {
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className={`${showBg ? "text-ink-soft hover:text-ink" : "text-cream/80 hover:text-cream"}`}
+              className={`text-sm ${
+                showBg ? "text-ink-soft hover:text-ink" : "text-cream/80 hover:text-cream"
+              }`}
             >
               {l.label}
             </Link>

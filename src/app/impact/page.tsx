@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { client } from "@/sanity/lib/client";
 import {
   IMPACT_STATS_QUERY,
@@ -7,6 +8,12 @@ import { getJourneyList } from "@/lib/journey";
 import ImpactDashboard from "@/components/ImpactDashboard";
 
 export const revalidate = 3600;
+
+export const metadata: Metadata = {
+  title: "Impact",
+  description: "Trips, trash, trails — what the numbers actually look like. No fluff.",
+  openGraph: { title: "Impact — TheSocialTraveller" },
+};
 
 export default async function ImpactPage() {
   const [impact, agg, journeys] = await Promise.all([
@@ -41,8 +48,7 @@ export default async function ImpactPage() {
           Every place leaves a story.
         </h1>
         <p className="mt-4 text-ink-soft">
-          Real numbers where we have them. Everything else is honest
-          work-in-progress.
+          Real numbers where we have them. Honest where we don&apos;t.
         </p>
       </header>
 

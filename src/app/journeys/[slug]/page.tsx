@@ -8,9 +8,9 @@ import {
   JOURNEY_SLUGS_QUERY,
 } from "@/sanity/lib/queries";
 import { getVideoById, getLatestVideos } from "@/lib/youtube";
-import { getJourneys } from "@/lib/journey";
 import PortableText from "@/components/PortableText";
 import { urlForImage } from "@/sanity/lib/image";
+import VideoPlayer from "@/components/VideoPlayer";
 
 export const revalidate = 10800;
 
@@ -75,14 +75,6 @@ export default async function JourneyPage({
     .sort((a, b) => +new Date(a.publishedAt!) - +new Date(b.publishedAt!));
   const tripNumber = trips.findIndex((x) => x.id === id) + 1;
 
-  const heroUrl = journey.heroImage
-    ? urlForImage(journey.heroImage as never)
-        .width(1280)
-        .height(720)
-        .fit("crop")
-        .url()
-    : `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
-
   const published = journey.publishedAt
     ? new Date(journey.publishedAt).toLocaleDateString("en-IN", {
         year: "numeric",
@@ -92,7 +84,8 @@ export default async function JourneyPage({
     : "";
 
   return (
-    <main className="mx-auto max-w-[72rem] px-4 py-12 sm:px-8">
+    <>
+    <article className="mx-auto max-w-[72rem] px-4 py-12 sm:px-8">
       <Link
         href="/journeys"
         className="text-sm text-water underline-offset-2 hover:underline"
@@ -102,16 +95,7 @@ export default async function JourneyPage({
 
       <div className="mt-6 grid gap-10 lg:grid-cols-[1.6fr_1fr]">
         <div>
-          <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-sand bg-ink/5">
-            <Image
-              src={heroUrl}
-              alt={journey.title ?? "Journey"}
-              fill
-              sizes="(min-width: 1024px) 60vw, 100vw"
-              className="object-cover"
-              priority
-            />
-          </div>
+          <VideoPlayer videoId={id} title={journey.title ?? "Journey"} />
           <a
             href={journey.youtubeUrl ?? `https://www.youtube.com/watch?v=${id}`}
             target="_blank"
@@ -149,7 +133,7 @@ export default async function JourneyPage({
             {published && <span>{published}</span>}
             {live?.durationSec ? <span>{formatDuration(live.durationSec)}</span> : null}
             {journey.distanceLabel && <span>{journey.distanceLabel}</span>}
-            {trashKg != null && <span>{trashKg} kg collected</span>}
+            {trashKg != null && <span>{trashKg} kg picked up</span>}
             {(journey.locations?.length || places.length) > 0 && (
               <span>
                 {(journey.locations?.length || places.length)} stops
@@ -178,7 +162,7 @@ export default async function JourneyPage({
       {journey.body && Array.isArray(journey.body) && journey.body.length > 0 && (
         <div className="mt-10 max-w-2xl">
           <h2 className="text-sm font-medium uppercase tracking-wide text-leaf">
-            Field Notes
+            Journal
           </h2>
           <div className="mt-3">
             <PortableText value={journey.body} />
@@ -189,7 +173,7 @@ export default async function JourneyPage({
       {description && !journey.body?.length && (
         <div className="mt-10 max-w-2xl">
           <h2 className="text-sm font-medium uppercase tracking-wide text-leaf">
-            About this journey
+            About this one
           </h2>
           <p className="mt-2 whitespace-pre-line text-ink-soft">{description}</p>
         </div>
@@ -209,7 +193,7 @@ export default async function JourneyPage({
                   {url && (
                     <Image
                       src={url}
-                      alt={g?.caption ?? journey.title ?? ""}
+                      alt={g?.caption ?? `Photo from ${journey.title}`}
                       width={600}
                       height={400}
                       className="aspect-[3/2] w-full object-cover"
@@ -227,7 +211,7 @@ export default async function JourneyPage({
 
       {journey.tips && journey.tips.length > 0 && (
         <div className="mt-10 max-w-2xl">
-          <h2 className="text-sm font-medium uppercase tracking-wide text-leaf">Travel Tips</h2>
+          <h2 className="text-sm font-medium uppercase tracking-wide text-leaf">Tips from the trail</h2>
           <ul className="mt-3 space-y-3">
             {journey.tips.map((t: any, i: number) => (
               <li key={i} className="rounded-lg border border-sand bg-stone p-4">
@@ -263,6 +247,15 @@ export default async function JourneyPage({
           ))}
         </div>
       )}
-    </main>
+    </article>
+      <div className="mx-auto max-w-[72rem] px-4 pb-12 sm:px-8">
+        <Link
+          href="/journal"
+          className="inline-flex items-center gap-1 text-sm text-water underline-offset-2 hover:underline"
+        >
+          Journal →
+        </Link>
+      </div>
+    </>
   );
 }

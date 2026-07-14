@@ -15,11 +15,11 @@ const MapIndia = dynamic(() => import("@/components/MapIndia"), {
 });
 
 export default function MapIndiaWrapper({
+  placeVideos,
   latestPlace,
-  latestYoutubeId,
 }: {
+  placeVideos: Record<string, string>;
   latestPlace?: string | null;
-  latestYoutubeId?: string | null;
 }) {
-  return <MapIndia latestPlace={latestPlace ?? null} latestYoutubeId={latestYoutubeId ?? null} />;
+  return <MapIndia placeVideos={placeVideos} latestPlace={latestPlace ?? null} />;
 }

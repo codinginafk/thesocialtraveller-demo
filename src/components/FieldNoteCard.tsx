@@ -33,7 +33,7 @@ export default function FieldNoteCard({
 
   return (
     <Link
-      href={`/field-notes/${slug?.current ?? note._id}`}
+      href={`/journal/${slug?.current ?? note._id}`}
       className="group block overflow-hidden rounded-xl border border-sand bg-stone shadow-soft transition-shadow hover:shadow-lg"
     >
       {imgUrl && (

@@ -19,13 +19,36 @@ const cormorant = Cormorant_Garamond({
   weight: ["400", "500", "600", "700"],
 });
 
+const SITE_URL = "https://thesocialtraveller-demo.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "TheSocialTraveller — Come for the adventure, notice the impact",
     template: "%s · TheSocialTraveller",
   },
   description:
-    "Travel films from TheSocialTraveller — scenic journeys documented while picking up trash along the way, with a mission to fund and maintain dustbins in mountain and beach areas.",
+    "Scenic travel, real cleanup. One person, a camera, and a mission to leave India\u2019s mountains and beaches cleaner than he found them.",
+  alternates: {
+    canonical: SITE_URL,
+  },
+  openGraph: {
+    title: "TheSocialTraveller — Come for the adventure, notice the impact",
+    description:
+      "Scenic travel, real cleanup. One person, a camera, and a mission to leave India\u2019s mountains and beaches cleaner than he found them.",
+    url: SITE_URL,
+    siteName: "TheSocialTraveller",
+    images: [{ url: "/images/hero.jpg", width: 1200, height: 630 }],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TheSocialTraveller — Come for the adventure, notice the impact",
+    description:
+      "Scenic travel, real cleanup. One person, a camera, a mission.",
+    images: ["/images/hero.jpg"],
+  },
 };
 
 export default async function RootLayout({

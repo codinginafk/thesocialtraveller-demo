@@ -1,22 +1,14 @@
-import { client } from "@/sanity/lib/client";
-import { ABOUT_QUERY } from "@/sanity/lib/queries";
+import type { Metadata } from "next";
 import AboutParallax from "@/components/AboutParallax";
 
 export const revalidate = 3600;
 
-export default async function AboutPage() {
-  const about = await client
-    .fetch(ABOUT_QUERY, {}, { next: { revalidate: 3600 } })
-    .catch(() => null);
+export const metadata: Metadata = {
+  title: "About",
+  description: "One person. One camera. One promise to the mountains.",
+  openGraph: { title: "About — TheSocialTraveller" },
+};
 
-  const story = {
-    heroQuote: about?.heroQuote || "",
-    introduction: about?.introduction || "",
-    body: about?.body || null,
-    missionQuote: about?.missionQuote || "",
-    footerCallout: about?.footerCallout || "",
-    title: about?.title || "About",
-  };
-
-  return <AboutParallax story={story} />;
+export default function AboutPage() {
+  return <AboutParallax />;
 }

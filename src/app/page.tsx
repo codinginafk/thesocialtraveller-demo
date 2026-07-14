@@ -16,6 +16,7 @@ import MapIndiaWrapper from "@/components/MapIndiaWrapper";
 import FeaturedStoryClient from "@/components/FeaturedStoryClient";
 import { urlForImage } from "@/sanity/lib/image";
 import type { JourneyDoc } from "@/lib/journey";
+import { PLACES } from "@/lib/places";
 
 export const revalidate = 3600;
 
@@ -41,7 +42,7 @@ async function Hero() {
       {/* Permanent hero image */}
       <Image
         src="/images/hero.jpg"
-        alt="Winding mountain road through misty green hills"
+        alt="Mountain road disappearing into mist"
         fill
         priority
         sizes="100vw"
@@ -52,14 +53,14 @@ async function Hero() {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center px-6">
-        {/* Two-part heading with underline */}
+        {/* Two-part heading with underline on second line */}
         <div className="text-center">
           <h1 className="font-serif text-5xl italic leading-none text-cream md:text-7xl lg:text-8xl">
-            Why take
-          </h1>
-          <div className="mx-auto mt-3 h-px w-24 bg-cream/60" />
-          <h1 className="mt-3 font-serif text-5xl italic leading-none text-cream md:text-7xl lg:text-8xl">
-            the paths they ignore?
+            <span className="block">Why take the path</span>
+            <span className="relative mt-3 inline-block text-clay">
+              they ignore?
+              <span className="absolute -bottom-1 left-0 h-px w-full bg-clay/60" />
+            </span>
           </h1>
         </div>
 
@@ -138,12 +139,12 @@ async function ImpactLedger() {
     {
       value: `${trashKg}kg`,
       label: "Waste Removed",
-      desc: "Collected on the trails of Malshej, Tamhini, and Matheran, and safely handed over to local village panchayats.",
+      desc: "Picked up on Malshej, Tamhini, Matheran. Handed to the panchayat.",
     },
     {
       value: locations,
       label: "Locations Documented",
-      desc: "Mountains, villages, and communities that have become a part of the story.",
+      desc: "Places that look like nothing on paper. Everything on foot.",
     },
   ];
 
@@ -188,20 +189,18 @@ async function FeaturedStory() {
 
   const cleanTitle = j.title
     ? j.title.split("|")[0].split("–")[0].split("—")[0].trim()
-    : "Featured Journey";
+    : "Feature";
 
   return (
-    <section className="bg-stone">
+    <section className="bg-cream">
       <div className="container-page py-20">
-        <Reveal>
-          <FeaturedStoryClient
-            title={cleanTitle}
-            excerpt={j.excerpt ?? null}
-            imgSrc={img}
-            youtubeId={j.youtubeId ?? ""}
-            youtubeUrl={j.youtubeUrl ?? `https://www.youtube.com/watch?v=${j.youtubeId}`}
-          />
-        </Reveal>
+        <FeaturedStoryClient
+          title={cleanTitle}
+          excerpt={j.excerpt ?? null}
+          imgSrc={img}
+          youtubeId={j.youtubeId ?? ""}
+          youtubeUrl={j.youtubeUrl ?? `https://www.youtube.com/watch?v=${j.youtubeId}`}
+        />
       </div>
     </section>
   );
@@ -213,12 +212,14 @@ function InstaPost({
   title,
   imgSrc,
   isVideo,
+  postUrl,
 }: {
   title: string;
   imgSrc: string | null;
   isVideo: boolean;
+  postUrl?: string;
 }) {
-  return (
+  const content = (
     <div className="group relative aspect-square overflow-hidden rounded-xl">
       {imgSrc ? (
         <img
@@ -231,7 +232,6 @@ function InstaPost({
           <span className="text-2xl text-cream/30">📸</span>
         </div>
       )}
-      {/* Gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-bark/50 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
       {isVideo && (
         <div className="absolute right-3 top-3">
@@ -242,20 +242,35 @@ function InstaPost({
           </span>
         </div>
       )}
-      {/* Title on hover */}
       <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-2 opacity-0 transition-all group-hover:translate-y-0 group-hover:opacity-100">
         <p className="text-xs font-medium text-cream">{title}</p>
       </div>
     </div>
   );
+
+  if (postUrl) {
+    return (
+      <a href={postUrl} target="_blank" rel="noopener noreferrer" className="block">
+        {content}
+      </a>
+    );
+  }
+
+  return content;
 }
 
 async function BehindTheLens() {
-  const journeys = await client
-    .fetch<JourneyDoc[]>(LATEST_JOURNEYS_QUERY, {}, { next: { revalidate: 3600 } })
-    .catch(() => []);
+  const [journeys, settings] = await Promise.all([
+    client
+      .fetch<JourneyDoc[]>(LATEST_JOURNEYS_QUERY, {}, { next: { revalidate: 3600 } })
+      .catch(() => []),
+    client
+      .fetch<Record<string, unknown>>(SITE_SETTINGS_QUERY, {}, { next: { revalidate: 3600 } })
+      .catch(() => ({} as Record<string, unknown>)),
+  ]);
   if (!journeys || journeys.length < 3) return null;
 
+  const instaUrl = (settings?.instagramUrl as string) || "https://instagram.com/TheSocialTraveller-2021";
   const posts = journeys.slice(0, 3);
 
   return (
@@ -265,14 +280,14 @@ async function BehindTheLens() {
           <div className="mb-8 flex items-end justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-clay">
-                Behind the Lens
+                On the trail
               </p>
               <h2 className="mt-2 font-serif text-3xl italic text-bark md:text-4xl">
-                Instagram stories
+                Latest from Instagram
               </h2>
             </div>
             <a
-              href="https://instagram.com/TheSocialTraveller-2021"
+              href={instaUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden items-center gap-1 text-sm text-clay transition-colors hover:text-clay-dark md:flex"
@@ -286,22 +301,23 @@ async function BehindTheLens() {
               const img = j.heroImage
                 ? urlForImage(j.heroImage as never).width(600).height(600).fit("crop").url()
                 : j.youtubeId
-                  ? `https://i.ytimg.com/vi/${j.youtubeId}/hqdefault.jpg`
+                  ? `https://i.ytimg.com/vi/${j.youtubeId}/maxresdefault.jpg`
                   : null;
               const isVideo = Boolean(j.youtubeId);
               return (
                 <InstaPost
                   key={j._id}
-                  title={j.title ?? "Behind the scene"}
+                  title={j.title ?? "Scene from the trail"}
                   imgSrc={img}
                   isVideo={isVideo}
+                  postUrl={instaUrl}
                 />
               );
             })}
           </div>
           <div className="mt-6 text-center md:hidden">
             <a
-              href="https://instagram.com/TheSocialTraveller-2021"
+              href={instaUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-lg border border-sand px-5 py-2.5 text-sm text-ink transition-colors hover:bg-stone"
@@ -319,46 +335,56 @@ async function BehindTheLens() {
 /* ─── Map Section ──────────────────────────────────────────────────────── */
 
 async function MapSection() {
-  const latest = await client
-    .fetch<JourneyDoc>(
-      `*[_type == "journey" && !isShort] | order(publishedAt desc)[0]{ _id, youtubeId, title, places, region }`,
+  const allJourneys = await client
+    .fetch<JourneyDoc[]>(
+      `*[_type == "journey" && !isShort && defined(places) && defined(youtubeId)] | order(publishedAt desc){ _id, youtubeId, title, places, region }`,
       {},
       { next: { revalidate: 3600 } },
     )
-    .catch(() => null);
-  const latestPlace = latest?.places?.[0] || null;
-  const latestYoutubeId = latest?.youtubeId || null;
+    .catch(() => []);
+  const placeVideos: Record<string, string> = {};
+  const regionVideos: Record<string, string> = {};
+  let latestPlace: string | null = null;
+  for (const j of allJourneys) {
+    if (j.places && j.youtubeId) {
+      for (const p of j.places) {
+        if (!placeVideos[p]) {
+          placeVideos[p] = j.youtubeId;
+        }
+      }
+      if (!latestPlace && j.places[0]) {
+        latestPlace = j.places[0];
+      }
+    }
+    if (j.youtubeId && j.region && !regionVideos[j.region]) {
+      regionVideos[j.region] = j.youtubeId;
+    }
+  }
+  for (const place of PLACES) {
+    if (!placeVideos[place.name] && regionVideos[place.region]) {
+      placeVideos[place.name] = regionVideos[place.region];
+    }
+  }
 
   return (
     <section id="map" className="bg-forest">
       <div className="container-page py-20">
         <Reveal>
-          <div className="grid gap-12 lg:grid-cols-[1fr_2fr] lg:items-center">
-            <div>
-              <p className="mb-3 text-xs uppercase tracking-[0.3em] text-clay">
-                Explore the Map
-              </p>
-              <h2 className="font-serif text-4xl italic text-cream md:text-5xl">
-                Every pin is a story.
-              </h2>
-              <p className="mt-5 max-w-md text-cream/70">
-                Hover a pin to see the video. Click to watch.
-              </p>
-              <Link
-                href="/journeys"
-                className="mt-8 inline-flex items-center gap-2 rounded-lg border border-cream/30 bg-cream/10 px-6 py-3 text-sm font-medium text-cream backdrop-blur-sm transition-colors hover:bg-cream/20"
-              >
-                View All Videos
-                <span className="text-lg">→</span>
-              </Link>
-            </div>
-            <div className="relative overflow-hidden rounded-2xl">
-              <MapIndiaWrapper
-                latestPlace={latestPlace}
-                latestYoutubeId={latestYoutubeId}
-              />
-            </div>
+          <div className="mb-10">
+            <p className="text-xs uppercase tracking-[0.3em] text-clay">
+              Explore the Map
+            </p>
+            <h2 className="mt-2 font-serif text-4xl italic text-cream md:text-5xl">
+              Every pin is a story.
+            </h2>
+            <p className="mt-4 max-w-md text-cream/70">
+              Click a place. Watch the journey.
+            </p>
           </div>
+          <MapIndiaWrapper
+            placeVideos={placeVideos}
+            latestPlace={latestPlace}
+          />
         </Reveal>
       </div>
     </section>
@@ -378,7 +404,7 @@ function EpisodeCard({
   const img = journey.heroImage
     ? urlForImage(journey.heroImage as never).width(400).height(250).fit("crop").url()
     : journey.youtubeId
-      ? `https://i.ytimg.com/vi/${journey.youtubeId}/hqdefault.jpg`
+      ? `https://i.ytimg.com/vi/${journey.youtubeId}/maxresdefault.jpg`
       : null;
 
   return (
@@ -386,7 +412,7 @@ function EpisodeCard({
       href={`/journeys/${slug}`}
       className="group relative w-[300px] flex-none snap-start md:w-[380px]"
     >
-      <div className="relative aspect-[16/9] overflow-hidden rounded-xl shadow-md transition-shadow duration-300 group-hover:shadow-xl">
+      <div className="relative aspect-[16/9] overflow-hidden rounded-xl">
         {img && (
           <Image
             src={img}
@@ -436,10 +462,10 @@ async function LatestEpisodes() {
           <div className="mb-10 flex items-end justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-clay">
-                Latest Episodes
+                Newest
               </p>
               <h2 className="mt-2 font-serif text-3xl italic text-bark md:text-4xl">
-                Watch the latest journeys
+                Latest journeys
               </h2>
             </div>
             <Link
