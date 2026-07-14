@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
-import Image from "next/image";
 import { urlForImage } from "@/sanity/lib/image";
 import type { JourneyDoc } from "@/lib/journey";
+
+function thumbUrl(youtubeId: string, size: "maxresdefault" | "hqdefault" | "sddefault" = "maxresdefault") {
+  return `https://i.ytimg.com/vi/${youtubeId}/${size}.jpg`;
+}
 
 export default function JourneyCard({
   journey,
@@ -11,15 +16,10 @@ export default function JourneyCard({
   const slug = journey.slug?.current ?? journey.youtubeId ?? "";
   if (!slug) return null;
 
-  const imgUrl = journey.heroImage
-    ? urlForImage(journey.heroImage as never)
-        .width(800)
-        .height(500)
-        .fit("crop")
-        .url()
-    : journey.youtubeId
-      ? `https://i.ytimg.com/vi/${journey.youtubeId}/maxresdefault.jpg`
-      : null;
+  const heroUrl = journey.heroImage
+    ? urlForImage(journey.heroImage as never).width(800).height(500).fit("crop").url()
+    : null;
+  const ytId = journey.youtubeId ?? null;
 
   const stops =
     journey.locations?.length ||
@@ -31,15 +31,32 @@ export default function JourneyCard({
   return (
     <article className="group flex flex-col overflow-hidden rounded-xl bg-stone shadow-soft transition-shadow hover:shadow-lg">
       <Link href={`/journeys/${slug}`} className="relative block aspect-video w-full overflow-hidden bg-cream">
-        {imgUrl && (
-          <Image
-            src={imgUrl}
+        {heroUrl ? (
+          <img
+            src={heroUrl}
             alt={journey.title ?? "Journey"}
-            fill
             loading="lazy"
-            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
+        ) : ytId ? (
+          <img
+            src={thumbUrl(ytId, "maxresdefault")}
+            alt={journey.title ?? "Journey"}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            onError={(e) => {
+              const img = e.currentTarget;
+              if (img.src.includes("maxresdefault")) {
+                img.src = thumbUrl(ytId, "hqdefault");
+              } else if (img.src.includes("hqdefault")) {
+                img.src = thumbUrl(ytId, "sddefault");
+              }
+            }}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center bg-sand">
+            <span className="text-sm text-ink-soft">No thumbnail</span>
+          </div>
         )}
       </Link>
       <div className="flex flex-1 flex-col p-5">
