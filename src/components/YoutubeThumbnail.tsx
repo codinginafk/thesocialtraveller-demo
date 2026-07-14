@@ -1,14 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 
 const SIZES = ["maxresdefault", "hqdefault", "sddefault"] as const;
-const RETRY_DELAY = 1500;
-const MAX_RETRIES = 3;
-
-function thumbUrl(youtubeId: string, size: string) {
-  return `https://i.ytimg.com/vi/${youtubeId}/${size}.jpg`;
-}
 
 export default function YoutubeThumbnail({
   youtubeId,
@@ -19,35 +13,19 @@ export default function YoutubeThumbnail({
   alt: string;
   className?: string;
 }) {
-  const [src, setSrc] = useState<string>(thumbUrl(youtubeId, "maxresdefault"));
+  const [src, setSrc] = useState<string>(
+    `https://i.ytimg.com/vi/${youtubeId}/maxresdefault.jpg`
+  );
   const [failed, setFailed] = useState(false);
-  const retriesRef = useRef(0);
-  const sizeIndexRef = useRef(0);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>(null!);
-
-  useEffect(() => {
-    return () => clearTimeout(timerRef.current);
-  }, []);
-
-  const tryNext = () => {
-    const nextIndex = sizeIndexRef.current + 1;
-    if (nextIndex < SIZES.length) {
-      sizeIndexRef.current = nextIndex;
-      retriesRef.current = 0;
-      setSrc(thumbUrl(youtubeId, SIZES[nextIndex]));
-    } else {
-      setFailed(true);
-    }
-  };
 
   const handleError = () => {
-    retriesRef.current++;
-    if (retriesRef.current < MAX_RETRIES) {
-      timerRef.current = setTimeout(() => {
-        setSrc(thumbUrl(youtubeId, SIZES[sizeIndexRef.current]));
-      }, RETRY_DELAY);
+    const sizes = ["maxresdefault", "hqdefault", "sddefault"];
+    const current = sizes.findIndex((s) => src.endsWith(`/${s}.jpg`));
+    const next = current + 1;
+    if (next < sizes.length) {
+      setSrc(`https://i.ytimg.com/vi/${youtubeId}/${sizes[next]}.jpg`);
     } else {
-      tryNext();
+      setFailed(true);
     }
   };
 

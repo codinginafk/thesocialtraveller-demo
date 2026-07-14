@@ -87,6 +87,8 @@ export default function FeaturedStoryClient({
     if (next < THUMB_SIZES.length) {
       setFallbackLevel(next);
       setCurrentSrc(`https://i.ytimg.com/vi/${youtubeId}/${THUMB_SIZES[next]}.jpg`);
+    } else {
+      setCurrentSrc(null);
     }
   };
 
